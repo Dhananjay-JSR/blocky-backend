@@ -9,10 +9,12 @@
   },
   "dependencies": {
     "nodemon": "^3.0.2",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "websocket": "^1.0.34"
   },
   "devDependencies": {
     "@types/node": "^20.10.3",
+    "@types/websocket": "^1.0.10",
     "typescript": "^5.3.3"
   }
 }
