@@ -6,6 +6,8 @@ let BTC_Confirmation = false;
 let ETH_Confirmation = false;
 const ETHStream = new Stream()
 const BTCStream = new Stream()
+
+const Connected_Client = new Set();
 BTCClient.on("connect",(conn)=>{
     console.log("Host Peer Connected")
     conn.send(JSON.stringify({"coin":"btc","command":"subscribe","entity":"pending_transaction"}))
@@ -28,7 +30,6 @@ BTCClient.on("connect",(conn)=>{
                 let Response = JSON.parse(msg.utf8Data) as {success:boolean, entity:string, coin:string,message:string}
                 if (Response.coin=="eth"){
                     if (Response.success){
-
                         console.log("Etherium Peer Establishment Successfull")
                         ETH_Confirmation=true;
                     }else{
@@ -37,15 +38,13 @@ BTCClient.on("connect",(conn)=>{
                 }
             }
             else if (BTC_Confirmation && ETH_Confirmation){
-                let resp = (JSON.parse(msg.utf8Data))
-                if (resp.coin=="btc"){
-                    // console.log("BTC Transaction Received")
-                    BTCStream.emit("data",resp)
-                }
-                if (resp.coin=="eth"){
-                    // console.log("ETH Transaction Received")
-                    ETHStream.emit("data",resp)
-                }
+                    let resp = (JSON.parse(msg.utf8Data))
+                    if (resp.coin=="btc"&&BTCStream.listenerCount("data")!=0){
+                            BTCStream.emit("data",resp)
+                    }
+                    if (resp.coin=="eth"&&ETHStream.listenerCount("data")!=0){
+                        ETHStream.emit("data",resp)
+                    }
             }
         }
     })
@@ -57,4 +56,4 @@ catch (e){
 })
 BTCClient.connect("wss://ws.blockchain.info/coins")
 
-export {BTCStream,ETHStream}
+export {BTCStream,ETHStream,Connected_Client}
