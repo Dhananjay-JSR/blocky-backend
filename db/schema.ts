@@ -10,7 +10,20 @@ export const TransactionQueries = sqliteTable('transaction_querries',{
     }),
 })
 
-export type Trsansactions = typeof TransactionQueries.$inferSelect // return type when queried
+export const Address = sqliteTable('address',{
+    id: integer('id').primaryKey({
+        autoIncrement: true
+    }),
+    address: text('address'),
+    json_data: text('json_data',{
+       mode: "json"
+    }) 
+})
+
+export type AddressType = typeof Address.$inferSelect // return type when queried
+export type InsertAddress = typeof Address.$inferInsert // insert type
+
+export type TransactionType = typeof TransactionQueries.$inferSelect // return type when queried
 export type InsertTransaction = typeof TransactionQueries.$inferInsert // insert type
 
 

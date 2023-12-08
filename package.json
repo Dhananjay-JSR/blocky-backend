@@ -7,10 +7,10 @@
     "start": "ts-node --respawn --transpile-only ./src/index.ts",
     "generate": "drizzle-kit generate:sqlite",
     "migrate": "tsx db/migrate.ts ",
-    "dev": "nodemon ./src/index.ts",
-    "postinstall": " npm run generate && npm run migrate"
+    "dev": "nodemon ./src/index.ts"
   },
   "dependencies": {
+    "axios": "^1.6.2",
     "better-sqlite3": "^9.2.2",
     "cors": "^2.8.5",
     "drizzle-orm": "^0.29.1",
