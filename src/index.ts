@@ -1,10 +1,15 @@
 import {BTCStream,Connected_Client,ETHStream} from './module/StreamConnector'
 import express from 'express'
 import expressWs from 'express-ws'
+import cors from 'cors'
 
 const appBase = express();
 const wsInstance = expressWs(appBase);
 let { app } = wsInstance
+
+app.use(cors({
+    origin:"*"
+}))
 
 app.ws('/btc',(ws ,req)=>{
     const Handler = (data:any)=>{
@@ -27,6 +32,10 @@ app.ws('/eth',(ws ,req)=>{
     ws.on("close",()=>{
         ETHStream.removeListener("data",Handler)
     })
+})
+
+app.get('/health',(req,res)=>{
+    res.send("OK")
 })
 
 app.listen(3000,()=>{
