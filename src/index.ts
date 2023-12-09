@@ -2,10 +2,11 @@ import {BTCStream,Connected_Client,ETHStream} from './module/StreamConnector'
 import express from 'express'
 import expressWs from 'express-ws'
 import cors from 'cors'
-import { GETTransactions, GetAddress, GetInputOut } from './module/BTCProxy';
+import { GETTransactions, GetAddress, GetAddressMetaData, GetInputOut } from './module/BTCProxy';
 import { db } from '../db/db';
 import { Address, AddressType, TransactionQueries, TransactionType } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import axios from 'axios';
 
 const appBase = express();
 const wsInstance = expressWs(appBase);
@@ -26,17 +27,38 @@ app.get("/address",async (req,res)=>{
 
     if (result.length == 0){
         // Cache doesn't Exist Get Data from Upstream
-        let AddressDetails = await GetAddress(AddressID)
+        
+        let TransactionsList = await GetAddress(AddressID)
+        let TxList = TransactionsList.data.map((tx:any)=>tx.txid)
+        let TxMetaData = await GetAddressMetaData(TxList)
+
+        
+
+        const MashedData = (TxMetaData.data.map(((txMeta:any)=>{
+            if (txMeta.inputs.some((e:any)=>e.address==AddressID)){
+                return {
+                    id: txMeta.txid,
+                    IncomingTx:false
+                }
+            }
+
+            if (txMeta.outputs.some((e:any)=>e.address==AddressID)){
+                return {
+                    id: txMeta.txid,
+                    IncomingTx:true
+                }
+            }
+        })))
         let InstertResponse = await db.insert(Address).values({
             address: AddressID,
-            json_data: AddressDetails.data
+            json_data: MashedData
         })
         
         if (InstertResponse.changes == 0){
             res.status(500).send("Internal Server Error")
             return
         }else if(InstertResponse.changes == 1){
-            res.status(201).send(AddressDetails.data)
+            res.status(201).send(MashedData)
             return
         }
     }else{
