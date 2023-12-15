@@ -10,6 +10,16 @@ export const TransactionQueries = sqliteTable('transaction_querries',{
     }),
 })
 
+export const SearchHistory = sqliteTable('search_history',{
+    id: integer('id').primaryKey({
+        autoIncrement: true
+    }),
+    search_term : text('search_term'),
+    json_data: text('json_data',{
+        mode: "json"
+    }),
+})
+
 export const Address = sqliteTable('address',{
     id: integer('id').primaryKey({
         autoIncrement: true
